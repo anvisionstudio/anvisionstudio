@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  --background: #06070d;
+  --foreground: #f5f6fb;
+  --accent: #7c5cff;
+  --accent-soft: #22d3ee;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+@keyframes aurora {
+  0%,
+  100% {
+    transform: translate3d(-8%, -6%, 0) scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate3d(8%, 6%, 0) scale(1.15);
+    opacity: 1;
+  }
+}
+
+.aurora {
+  animation: aurora 14s ease-in-out infinite;
+}
