@@ -80,6 +80,7 @@ docker/wordpress/           # PHP 8.3 + Xdebug + Redis 擴充
 docker/wpcli/               # WP-CLI 映像
 wp-content/themes/anvisionstudio/
 wp-content/plugins/anvisionstudio-core/
+wp-content/plugins/image-compressor/  # 瀏覽器端 WebP 壓縮（圖片不上傳）
 wp-content/mu-plugins/      # 本機 SMTP 與 LOCAL 後台標記
 composer.json / phpcs.xml.dist
 .cursor/skills/             # WordPress + WooCommerce Agent Skills（Cursor 會載入）

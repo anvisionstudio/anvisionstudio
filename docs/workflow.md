@@ -23,11 +23,22 @@ make health
 ./bin/wp post create --post_title='Hello' --post_status=publish
 ./bin/wp user create editor editor@example.test --role=editor
 ./bin/wp plugin list
+./bin/wp plugin activate image-compressor
 ./bin/wp theme list
 ./bin/wp db export -   # 輸出在 stdout；勿把 dump 提交到 git
 ```
 
 重寫規則若 404：`./bin/wp rewrite flush`。
+
+## 圖片壓縮外掛
+
+`image-compressor` 是瀏覽器端 WebP 工具（圖片不上傳）。
+
+```bash
+make wp ARGS='plugin activate image-compressor'
+```
+
+後台：媒體 → 圖片壓縮（需 `upload_files`）。前台短碼：`[image_compressor]`。
 
 ## 信件
 

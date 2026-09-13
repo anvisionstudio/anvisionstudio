@@ -74,6 +74,7 @@ fi
 
 ${COMPOSE} exec -T wpcli wp theme activate anvisionstudio
 ${COMPOSE} exec -T wpcli wp plugin activate anvisionstudio-core
+${COMPOSE} exec -T wpcli wp plugin activate image-compressor
 ${COMPOSE} exec -T wpcli wp rewrite structure '/%postname%/' --hard
 ${COMPOSE} exec -T wpcli wp option update blogdescription 'Anvision Studio'
 ${COMPOSE} exec -T wpcli wp option update timezone_string 'Asia/Taipei' || true

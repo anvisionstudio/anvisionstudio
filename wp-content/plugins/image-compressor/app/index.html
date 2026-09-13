@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>圖片壓縮 — WebP</title>
+	<link rel="stylesheet" href="vendor/cropper.min.css">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="ic-app">
+		<header class="ic-header">
+			<div>
+				<h1>圖片壓縮</h1>
+				<p class="ic-modes">上傳多張＝批次等比例壓縮、上傳單張＝可裁切並指定尺寸</p>
+			</div>
+			<button type="button" class="ic-link" id="helpBtn" aria-haspopup="dialog">使用說明</button>
+		</header>
+
+		<p class="ic-privacy" role="note">全程在你的瀏覽器處理，圖片不會上傳</p>
+
+		<section id="dropzone" class="ic-dropzone" tabindex="0">
+			<input id="fileInput" type="file" accept="image/jpeg,image/jpg,image/png" multiple hidden>
+			<p class="ic-drop-title">將圖片拖曳到此處，或點擊以選擇檔案</p>
+			<p class="ic-drop-hint">JPG / PNG，最多 20 張。輸出固定為 WebP（品質約 80%）。</p>
+		</section>
+
+		<p id="notice" class="ic-notice" hidden></p>
+
+		<section id="batchPanel" class="ic-panel" hidden>
+			<h2>批次等比例壓縮</h2>
+			<div class="ic-toolbar">
+				<label>最大寬度
+					<input id="batchWidth" type="number" min="100" max="4096" value="1920" step="10">
+				</label>
+				<label>品質
+					<input id="batchQuality" type="range" min="50" max="95" value="80">
+					<span id="batchQualityVal">80%</span>
+				</label>
+				<button type="button" id="batchConvert" class="ic-btn">開始轉換</button>
+				<button type="button" id="batchZip" class="ic-btn ic-btn-secondary" disabled>打包下載 ZIP</button>
+				<button type="button" id="resetBatch" class="ic-btn ic-btn-ghost">重選檔案</button>
+			</div>
+			<p id="batchStatus" class="ic-status"></p>
+			<table class="ic-table" id="batchTable">
+				<thead>
+					<tr>
+						<th>檔名</th>
+						<th>原始</th>
+						<th>WebP</th>
+						<th>壓縮比</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</section>
+
+		<section id="cropPanel" class="ic-panel" hidden>
+			<h2>單張裁切</h2>
+			<div class="ic-crop-layout">
+				<div class="ic-crop-stage">
+					<img id="cropImage" alt="待裁切圖片">
+				</div>
+				<div class="ic-crop-controls">
+					<fieldset>
+						<legend>裁切比例</legend>
+						<div class="ic-ratios" id="ratioButtons">
+							<button type="button" data-ratio="free" class="is-active">原比例（不裁切）</button>
+							<button type="button" data-ratio="1">1:1</button>
+							<button type="button" data-ratio="1.3333">4:3</button>
+							<button type="button" data-ratio="1.5">3:2</button>
+							<button type="button" data-ratio="1.7778">16:9</button>
+						</div>
+					</fieldset>
+					<label>輸出寬度
+						<select id="cropWidthPreset">
+							<option value="800">800</option>
+							<option value="1200">1200</option>
+							<option value="1920" selected>1920</option>
+							<option value="custom">自訂</option>
+						</select>
+					</label>
+					<label id="cropWidthCustomWrap" hidden>自訂寬度
+						<input id="cropWidthCustom" type="number" min="100" max="4096" value="1600" step="10">
+					</label>
+					<label>品質
+						<input id="cropQuality" type="range" min="50" max="95" value="80">
+						<span id="cropQualityVal">80%</span>
+					</label>
+					<p class="ic-estimate">預估大小：<strong id="cropEstimate">計算中…</strong></p>
+					<button type="button" id="cropDownload" class="ic-btn">下載 WebP</button>
+					<button type="button" id="resetCrop" class="ic-btn ic-btn-ghost">重選檔案</button>
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<dialog id="helpDialog" class="ic-dialog">
+		<h2>使用說明</h2>
+		<div class="ic-flows">
+			<div>
+				<h3>多張 → 批次</h3>
+				<ol>
+					<li>拖曳或選擇 2–20 張 JPG/PNG</li>
+					<li>設定最大寬度與品質</li>
+					<li>立即轉換，比較原始／WebP 大小</li>
+					<li>單張下載或打包 ZIP</li>
+				</ol>
+			</div>
+			<div>
+				<h3>單張 → 裁切</h3>
+				<ol>
+					<li>只選一張圖片</li>
+					<li>調整裁切框與比例、指定輸出寬度</li>
+					<li>預估大小會即時更新</li>
+					<li>下載 WebP</li>
+				</ol>
+			</div>
+		</div>
+		<p>全程在你的瀏覽器處理，圖片不會上傳。</p>
+		<button type="button" class="ic-btn" id="helpClose">關閉</button>
+	</dialog>
+
+	<script src="vendor/cropper.min.js"></script>
+	<script src="vendor/jszip.min.js"></script>
+	<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+:root {
+	color-scheme: light;
+	--ink: #111111;
+	--paper: #f7f4ef;
+	--accent: #1f4d3a;
+	--muted: #6b6b6b;
+	--line: #d4cfc6;
+	--card: #fffdf8;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.ic-app {
+	max-width: 1080px;
+	margin: 0 auto;
+	padding: 1.25rem 1rem 2rem;
+}
+
+.ic-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 1rem;
+}
+
+h1,
+h2,
+h3 {
+	margin: 0 0 0.35rem;
+	line-height: 1.2;
+}
+
+.ic-modes,
+.ic-drop-hint,
+.ic-status,
+.ic-estimate {
+	color: var(--muted);
+}
+
+.ic-privacy {
+	margin: 0.75rem 0 1rem;
+	padding: 0.65rem 0.85rem;
+	background: #e7f0ea;
+	border-radius: 8px;
+	color: var(--accent);
+	font-weight: 600;
+}
+
+.ic-dropzone {
+	border: 2px dashed var(--line);
+	border-radius: 12px;
+	background: var(--card);
+	padding: 2.5rem 1rem;
+	text-align: center;
+	cursor: pointer;
+}
+
+.ic-dropzone.is-over {
+	border-color: var(--accent);
+	background: #eef6f1;
+}
+
+.ic-drop-title {
+	margin: 0 0 0.4rem;
+	font-weight: 600;
+}
+
+.ic-notice {
+	margin: 0.75rem 0 0;
+	color: #8a4b12;
+}
+
+.ic-panel {
+	margin-top: 1.25rem;
+	padding: 1rem;
+	background: var(--card);
+	border: 1px solid var(--line);
+	border-radius: 12px;
+}
+
+.ic-toolbar,
+.ic-crop-controls label,
+.ic-ratios {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.65rem;
+	align-items: center;
+}
+
+.ic-toolbar {
+	margin: 0.75rem 0;
+}
+
+label {
+	display: flex;
+	gap: 0.4rem;
+	align-items: center;
+}
+
+input[type="number"],
+select {
+	padding: 0.35rem 0.45rem;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	background: #fff;
+	max-width: 8rem;
+}
+
+.ic-btn,
+.ic-link,
+.ic-ratios button {
+	appearance: none;
+	border: 1px solid var(--accent);
+	background: var(--accent);
+	color: #fff;
+	border-radius: 8px;
+	padding: 0.45rem 0.8rem;
+	cursor: pointer;
+	font: inherit;
+}
+
+.ic-btn-secondary {
+	background: #fff;
+	color: var(--accent);
+}
+
+.ic-btn-ghost,
+.ic-link {
+	background: transparent;
+	color: var(--accent);
+	border-color: transparent;
+	text-decoration: underline;
+	padding: 0.25rem 0;
+}
+
+.ic-btn:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.ic-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 0.75rem;
+	font-size: 0.95rem;
+}
+
+.ic-table th,
+.ic-table td {
+	text-align: left;
+	padding: 0.45rem 0.35rem;
+	border-bottom: 1px solid var(--line);
+}
+
+.ic-crop-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 16rem;
+	gap: 1rem;
+	margin-top: 0.75rem;
+}
+
+.ic-crop-stage {
+	max-height: 70vh;
+	background: #1a1a1a;
+	overflow: hidden;
+}
+
+.ic-crop-stage img {
+	display: block;
+	max-width: 100%;
+}
+
+.ic-crop-controls {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+fieldset {
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	margin: 0;
+	padding: 0.6rem;
+}
+
+.ic-ratios button {
+	background: #fff;
+	color: var(--ink);
+	border-color: var(--line);
+	padding: 0.3rem 0.55rem;
+}
+
+.ic-ratios button.is-active {
+	background: var(--accent);
+	color: #fff;
+	border-color: var(--accent);
+}
+
+.ic-dialog {
+	border: none;
+	border-radius: 12px;
+	padding: 1.25rem;
+	max-width: 36rem;
+	width: calc(100% - 2rem);
+}
+
+.ic-dialog::backdrop {
+	background: rgb(0 0 0 / 0.4);
+}
+
+.ic-flows {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+
+@media (max-width: 800px) {
+	.ic-crop-layout,
+	.ic-flows {
+		grid-template-columns: 1fr;
+	}
+
+	.ic-header {
+		flex-direction: column;
+	}
+}

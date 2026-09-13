@@ -4,6 +4,7 @@
 
 	<file>wp-content/themes/anvisionstudio</file>
 	<file>wp-content/plugins/anvisionstudio-core</file>
+	<file>wp-content/plugins/image-compressor</file>
 	<file>wp-content/mu-plugins</file>
 
 	<exclude-pattern>*/vendor/*</exclude-pattern>
@@ -31,6 +32,7 @@
 			<property name="text_domain" type="array">
 				<element value="anvisionstudio"/>
 				<element value="anvisionstudio-core"/>
+				<element value="image-compressor"/>
 			</property>
 		</properties>
 	</rule>
