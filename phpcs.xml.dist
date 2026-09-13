@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<ruleset name="Anvision Studio">
+	<description>WordPress Coding Standards for Anvision Studio themes and plugins.</description>
+
+	<file>wp-content/themes/anvisionstudio</file>
+	<file>wp-content/plugins/anvisionstudio-core</file>
+	<file>wp-content/mu-plugins</file>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/uploads/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="4"/>
+	<arg name="colors"/>
+	<arg value="ps"/>
+	<arg name="basepath" value="."/>
+
+	<rule ref="WordPress">
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+	</rule>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<config name="testVersion" value="8.2-"/>
+	<config name="minimum_supported_wp_version" value="6.6"/>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="anvisionstudio"/>
+				<element value="anvisionstudio-core"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="anvision"/>
+				<element value="ANVISION"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

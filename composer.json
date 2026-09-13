@@ -1,0 +1,26 @@
+{
+  "name": "anvisionstudio/anvisionstudio",
+  "description": "Anvision Studio WordPress professional development environment",
+  "type": "project",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=8.2"
+  },
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
+    "php-parallel-lint/php-parallel-lint": "^1.4",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "wp-coding-standards/wpcs": "^3.2"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "phpcs": "phpcs",
+    "phpcbf": "phpcbf",
+    "lint": "parallel-lint --exclude vendor --exclude node_modules wp-content/themes wp-content/plugins wp-content/mu-plugins"
+  }
+}

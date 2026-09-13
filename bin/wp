@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Thin WP-CLI wrapper: ./bin/wp plugin list
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${ROOT}"
+exec docker compose exec -T wpcli wp "$@"

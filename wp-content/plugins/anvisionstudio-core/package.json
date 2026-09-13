@@ -1,0 +1,9 @@
+{
+  "name": "@anvisionstudio/core-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Placeholder workspace for Anvision Studio Core plugin assets",
+  "scripts": {
+    "build": "echo \"No plugin assets yet\""
+  }
+}

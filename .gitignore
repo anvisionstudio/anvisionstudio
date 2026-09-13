@@ -1,0 +1,43 @@
+# Secrets and local overrides — never commit
+.env
+.env.local
+.env.*.local
+docker-compose.override.yml
+auth.json
+
+# Dependencies
+/vendor/
+node_modules/
+
+# WordPress runtime (core lives in a named volume)
+wp-content/uploads/*
+!wp-content/uploads/.gitkeep
+wp-content/upgrade/
+wp-content/upgrade-temp-backup/
+wp-content/cache/
+wp-content/backup*/
+wp-content/debug.log
+wp-content/l10n/
+wp-content/ai1wm-backups/
+wp-content/themes/anvisionstudio/build/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+
+# Database dumps and archives
+*.sql
+*.sql.gz
+*.zip
+!wp-content/themes/anvisionstudio/src/**/*.css
+
+# Logs
+*.log
+npm-debug.log*
+
+# Composer / PHPUnit cache
+.phpunit.result.cache
+.phpcs-cache

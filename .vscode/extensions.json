@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "xdebug.php-debug",
+    "wordpress.vscode-wordpress-hooks",
+    "shevbel.wordpress-toolbox",
+    "stylelint.vscode-stylelint",
+    "dbaeumer.vscode-eslint"
+  ]
+}

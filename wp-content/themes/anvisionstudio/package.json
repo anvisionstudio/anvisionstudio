@@ -1,0 +1,15 @@
+{
+  "name": "@anvisionstudio/theme",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Anvision Studio WordPress theme assets",
+  "scripts": {
+    "start": "wp-scripts start",
+    "build": "wp-scripts build",
+    "lint:js": "wp-scripts lint-js src",
+    "lint:css": "wp-scripts lint-style src"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.25.0"
+  }
+}
