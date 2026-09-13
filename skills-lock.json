@@ -1,6 +1,30 @@
 {
   "version": 1,
   "skills": {
+    "abilities-api-implement": {
+      "source": "woocommerce/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/abilities-api-implement/SKILL.md",
+      "computedHash": "39710c38991f6fc10de6d5daa24ceabb2752821a6c616aa4bc83a22622529fb5"
+    },
+    "wc-cart-checkout-classic": {
+      "source": "Lonsdale201/wp-agent-skills",
+      "sourceType": "github",
+      "skillPath": "woocommerce/wc-cart-checkout-classic/SKILL.md",
+      "computedHash": "3da29a7c03cd1e6cdea9d109764256b82118c8ff6afdce7f4c3804e56daf9bdb"
+    },
+    "wc-hpos-compatibility": {
+      "source": "Lonsdale201/wp-agent-skills",
+      "sourceType": "github",
+      "skillPath": "woocommerce/wc-hpos-compatibility/SKILL.md",
+      "computedHash": "573723d2e2a005f4ead113f7334a85bdb081b5b1b6f7316af8f29e3ed60e1100"
+    },
+    "wc-order-lifecycle-and-items": {
+      "source": "Lonsdale201/wp-agent-skills",
+      "sourceType": "github",
+      "skillPath": "woocommerce/wc-order-lifecycle-and-items/SKILL.md",
+      "computedHash": "94b34eb18d815b3cc0c8e804ca68ef8435881aade21d1706bbcbcd44c1ffb90c"
+    },
     "wordpress-router": {
       "source": "WordPress/agent-skills",
       "sourceType": "github",

@@ -68,20 +68,24 @@ Compose 已提供 Redis 7。若要啟用物件快取，請自行加入官方相�
 
 ## Cursor Agent Skills
 
-Cursor 會載入專案 **`.cursor/skills/`**（以及使用者全域 `~/.cursor/skills/`）。本倉庫用官方安裝器從 [WordPress/agent-skills](https://github.com/WordPress/agent-skills) 寫入實際檔案（不是 symlink），請不要改 skill 本文。
+Cursor 會載入專案 **`.cursor/skills/`**（以及使用者全域 `~/.cursor/skills/`）。WordPress 與 WooCommerce skill 放在同一個目錄。檔案是來源複本（不是 symlink），請不要改 skill 本文。未裝店務營運 skill（例如 `navarroido/Woocommerce-skill`）或 `woocommerce-stale-pr-audit`。
 
-| 路徑 | Skill |
-| --- | --- |
-| `.cursor/skills/wordpress-router/` | 判斷專案類型並導向流程 |
-| `.cursor/skills/wp-project-triage/` | 偵測專案類型、工具與版本 |
-| `.cursor/skills/wp-block-themes/` | 區塊主題、`theme.json`、templates |
-| `.cursor/skills/wp-plugin-development/` | 外掛架構、hooks、安全性 |
-| `.cursor/skills/wp-block-development/` | Gutenberg `block.json`、rendering |
-| `.cursor/skills/wp-wpcli-and-ops/` | WP-CLI、自動化、`wp-cli.yml` |
+| 路徑 | 來源 | Skill |
+| --- | --- | --- |
+| `.cursor/skills/wordpress-router/` | WordPress/agent-skills | 判斷專案類型並導向流程 |
+| `.cursor/skills/wp-project-triage/` | WordPress/agent-skills | 偵測專案類型、工具與版本 |
+| `.cursor/skills/wp-block-themes/` | WordPress/agent-skills | 區塊主題、`theme.json`、templates |
+| `.cursor/skills/wp-plugin-development/` | WordPress/agent-skills | 外掛架構、hooks、安全性 |
+| `.cursor/skills/wp-block-development/` | WordPress/agent-skills | Gutenberg `block.json`、rendering |
+| `.cursor/skills/wp-wpcli-and-ops/` | WordPress/agent-skills | WP-CLI、自動化、`wp-cli.yml` |
+| `.cursor/skills/abilities-api-implement/` | woocommerce/agent-skills | Woo 擴充裡的 Abilities API |
+| `.cursor/skills/wc-hpos-compatibility/` | Lonsdale201/wp-agent-skills | HPOS CRUD 與相容宣告 |
+| `.cursor/skills/wc-order-lifecycle-and-items/` | Lonsdale201/wp-agent-skills | 訂單狀態、line items、庫存 |
+| `.cursor/skills/wc-cart-checkout-classic/` | Lonsdale201/wp-agent-skills | 傳統 cart/checkout hooks |
 
-`npx skills add` 同時寫入 `.agents/skills/`（相同內容）與根目錄 `skills-lock.json`，方便之後用 `npx skills` 更新。Cursor 以 `.cursor/skills/` 為準。
+`npx skills add` 同時寫入 `.agents/skills/`（相同內容）與根目錄 `skills-lock.json`。Cursor 以 `.cursor/skills/` 為準。
 
-更新（只裝這六個，並同步 Cursor 目錄）：
+更新 WordPress skill（只裝這六個，並同步 Cursor 目錄）：
 
 ```bash
 npx skills add WordPress/agent-skills \
@@ -98,3 +102,20 @@ node shared/scripts/skillpack-build.mjs --clean --targets=cursor \
 node shared/scripts/skillpack-install.mjs --dest=/path/to/anvisionstudio --targets=cursor \
   --skills=wordpress-router,wp-project-triage,wp-block-themes,wp-plugin-development,wp-block-development,wp-wpcli-and-ops
 ```
+
+更新 WooCommerce skill：
+
+```bash
+npx skills add woocommerce/agent-skills --skill abilities-api-implement --agent cursor --copy -y
+npx skills add Lonsdale201/wp-agent-skills \
+  --skill wc-hpos-compatibility --skill wc-order-lifecycle-and-items \
+  --skill wc-cart-checkout-classic --agent cursor --copy -y
+
+# 官方 Woo skillpack → .cursor/skills/
+git clone --depth 1 https://github.com/woocommerce/agent-skills.git /tmp/woo-agent-skills
+cd /tmp/woo-agent-skills
+node shared/scripts/skillpack-build.mjs --clean --targets=cursor --skills=abilities-api-implement
+node shared/scripts/skillpack-install.mjs --dest=/path/to/anvisionstudio --targets=cursor --skills=abilities-api-implement
+```
+
+Lonsdale 社群 skill 沒有 skillpack；把 `woocommerce/wc-*` 目錄原樣複製到 `.cursor/skills/` 即可，不要改本文。
