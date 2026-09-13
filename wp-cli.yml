@@ -1,0 +1,5 @@
+# Used by the wpcli container. Override --url if WP_URL in .env is not the default.
+path: /var/www/html
+url: http://localhost:8080
+apache_modules:
+  - mod_rewrite

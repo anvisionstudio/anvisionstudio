@@ -44,6 +44,8 @@ class Plugin {
 
 	/**
 	 * Prevent unserialization.
+	 *
+	 * @throws \RuntimeException Always, because this class is a singleton.
 	 */
 	public function __wakeup(): void {
 		throw new \RuntimeException( 'Cannot unserialize ' . __CLASS__ );

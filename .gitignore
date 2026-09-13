@@ -9,6 +9,11 @@ auth.json
 /vendor/
 node_modules/
 
+# Bundled core themes/plugins the official image copies into the bind mount
+wp-content/plugins/akismet/
+wp-content/plugins/hello.php
+wp-content/themes/twenty*/
+
 # WordPress runtime (core lives in a named volume)
 wp-content/uploads/*
 !wp-content/uploads/.gitkeep

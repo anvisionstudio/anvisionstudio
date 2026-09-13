@@ -16,15 +16,25 @@ defined( 'ABSPATH' ) || exit;
  * @param PHPMailer\PHPMailer\PHPMailer $phpmailer PHPMailer instance.
  */
 function anvision_local_configure_mailer( $phpmailer ): void {
-	$host = getenv( 'MAILPIT_SMTP_HOST' ) ?: 'mailpit';
-	$port = (int) ( getenv( 'MAILPIT_INTERNAL_SMTP_PORT' ) ?: 1025 );
+	$host = getenv( 'MAILPIT_SMTP_HOST' );
+	if ( false === $host || '' === $host ) {
+		$host = 'mailpit';
+	}
+
+	$port = getenv( 'MAILPIT_INTERNAL_SMTP_PORT' );
+	if ( false === $port || '' === $port ) {
+		$port = '1025';
+	}
 
 	$phpmailer->isSMTP();
-	$phpmailer->Host       = $host;
-	$phpmailer->Port       = $port;
-	$phpmailer->SMTPAuth   = false;
-	$phpmailer->SMTPSecure = false;
+	// PHPMailer public properties are camelCase by upstream design.
+	// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	$phpmailer->Host        = $host;
+	$phpmailer->Port        = (int) $port;
+	$phpmailer->SMTPAuth    = false;
+	$phpmailer->SMTPSecure  = false;
 	$phpmailer->SMTPAutoTLS = false;
+	// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 }
 
 add_action( 'phpmailer_init', 'anvision_local_configure_mailer' );
@@ -49,12 +59,19 @@ function anvision_local_admin_bar( $wp_admin_bar ): void {
 add_action( 'admin_bar_menu', 'anvision_local_admin_bar', 999 );
 
 /**
- * Mark outgoing mail From address as local-safe.
+ * Replace empty or localhost From addresses so PHPMailer accepts them.
  *
  * @param string $from From address.
  */
 function anvision_local_from_email( string $from ): string {
-	if ( empty( $from ) ) {
+	$at = strrchr( $from, '@' );
+	if ( false === $at ) {
+		$host = '';
+	} else {
+		$host = substr( $at, 1 );
+	}
+
+	if ( '' === $from || 'localhost' === $host || ! str_contains( $from, '@' ) ) {
 		return 'noreply@anvisionstudio.test';
 	}
 

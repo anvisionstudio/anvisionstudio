@@ -35,4 +35,11 @@ PhpStorm：Servers 對應 `/var/www/html/wp-content` → 專案 `wp-content`，p
 確認 `host.docker.internal`（Compose 已加 `host-gateway`）、本機 9003 未被佔用、helper 已觸發 session。可暫時改 `xdebug.start_with_request=yes` 做診斷，不要當成日常預設。
 
 **信件沒出現**  
-確認 WordPress 容器連得到 `mailpit:1025`（`docker compose exec wordpress ping -c1 mailpit` 若無 ping，改看 `make logs ARGS=mailpit`）。mu-plugin `000-anvision-local.php` 必須存在。
+確認 WordPress 容器連得到 `mailpit:1025`。可執行 `docker compose exec wordpress bash -c 'timeout 3 bash -c "echo >/dev/tcp/mailpit/1025"'`。mu-plugin `000-anvision-local.php` 必須存在。
+
+**Error establishing a database connection（容器彼此 ping 得到卻連不上 port）**  
+少數巢狀／限制環境會把 `br_netfilter` 打開，導致同 bridge 容器無法互連。本機 Docker Desktop 通常沒有此問題。若重現，可暫時：
+
+```bash
+sudo sysctl -w net.bridge.bridge-nf-call-iptables=0
+```

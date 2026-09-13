@@ -2,7 +2,7 @@
 
 本倉庫是 Anvision Studio 的本機 WordPress 開發堆疊：Docker Compose、MariaDB、WP-CLI、Mailpit、Adminer、Redis、Xdebug，以及 WordPress Coding Standards／Composer／主題資產工具。
 
-WordPress 核心與資料庫存在 Docker volume，**不上 git**。版本庫只追蹤 `wp-content` 主題、外掛、mu-plugin 與開發工具。
+WordPress 核心與資料庫存在 Docker volume，**不上 git**。版本庫只追蹤我們的 `wp-content` 主題、外掛、mu-plugin 與開發工具。官方映像可能會把 Twenty* 預設主題與 Akismet 複製進 bind mount，這些路徑已列入 `.gitignore`。
 
 ## 需求
 

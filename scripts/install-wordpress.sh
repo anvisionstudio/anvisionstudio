@@ -10,11 +10,17 @@ if [[ ! -f .env ]]; then
 	exit 1
 fi
 
-# shellcheck disable=SC1091
+# Load KEY=VALUE from .env without executing unquoted words.
+# Values with spaces must be quoted in .env (see .env.example).
 set -a
+# shellcheck disable=SC1091
 # shellcheck source=/dev/null
 source .env
 set +a
+if [[ "${WP_TITLE:-}" == "" ]]; then
+	echo "WP_TITLE is empty after reading .env. Quote values that contain spaces." >&2
+	exit 1
+fi
 
 placeholder_error() {
 	echo "Refusing to install: ${1} is still a placeholder. Edit .env." >&2
