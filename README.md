@@ -82,7 +82,14 @@ wp-content/themes/anvisionstudio/
 wp-content/plugins/anvisionstudio-core/
 wp-content/mu-plugins/      # 本機 SMTP 與 LOCAL 後台標記
 composer.json / phpcs.xml.dist
+.cursor/skills/             # 官方 WordPress Agent Skills（Cursor 會載入）
 ```
+
+## Cursor Agent Skills
+
+專案內的 [WordPress/agent-skills](https://github.com/WordPress/agent-skills) 裝在 **`.cursor/skills/`**。Cursor 會讀這個目錄（也會讀全域 `~/.cursor/skills/`）。請勿改 skill 本文；更新用官方安裝器。
+
+已安裝：`wordpress-router`、`wp-project-triage`、`wp-block-themes`、`wp-plugin-development`、`wp-block-development`、`wp-wpcli-and-ops`。細節見 [`docs/development.md`](docs/development.md#cursor-agent-skills)。
 
 ## 環境變數與密鑰
 
@@ -105,3 +112,5 @@ make setup             # build, boot, wp core install
 
 Site: http://localhost:8080 — Adminer: :8081 — Mailpit: :8025.  
 Daily: `make wp ARGS='…'`, `make phpcs`, `make assets`. Secrets stay in `.env` (gitignored).
+
+Cursor loads project skills from `.cursor/skills/` (official WordPress/agent-skills copies). Do not edit skill bodies; refresh with the official installer.

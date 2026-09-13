@@ -65,3 +65,36 @@ Compose 已提供 Redis 7。若要啟用物件快取，請自行加入官方相�
 | MariaDB datadir | named volume `db_data` |
 
 升級 WordPress 核心：`make wp ARGS='core update'`（核心仍在 volume 內）。
+
+## Cursor Agent Skills
+
+Cursor 會載入專案 **`.cursor/skills/`**（以及使用者全域 `~/.cursor/skills/`）。本倉庫用官方安裝器從 [WordPress/agent-skills](https://github.com/WordPress/agent-skills) 寫入實際檔案（不是 symlink），請不要改 skill 本文。
+
+| 路徑 | Skill |
+| --- | --- |
+| `.cursor/skills/wordpress-router/` | 判斷專案類型並導向流程 |
+| `.cursor/skills/wp-project-triage/` | 偵測專案類型、工具與版本 |
+| `.cursor/skills/wp-block-themes/` | 區塊主題、`theme.json`、templates |
+| `.cursor/skills/wp-plugin-development/` | 外掛架構、hooks、安全性 |
+| `.cursor/skills/wp-block-development/` | Gutenberg `block.json`、rendering |
+| `.cursor/skills/wp-wpcli-and-ops/` | WP-CLI、自動化、`wp-cli.yml` |
+
+`npx skills add` 同時寫入 `.agents/skills/`（相同內容）與根目錄 `skills-lock.json`，方便之後用 `npx skills` 更新。Cursor 以 `.cursor/skills/` 為準。
+
+更新（只裝這六個，並同步 Cursor 目錄）：
+
+```bash
+npx skills add WordPress/agent-skills \
+  --skill wordpress-router --skill wp-project-triage \
+  --skill wp-block-themes --skill wp-plugin-development \
+  --skill wp-block-development --skill wp-wpcli-and-ops \
+  --agent cursor --copy -y
+
+# 官方 skillpack → .cursor/skills/
+git clone --depth 1 https://github.com/WordPress/agent-skills.git /tmp/wp-agent-skills
+cd /tmp/wp-agent-skills
+node shared/scripts/skillpack-build.mjs --clean --targets=cursor \
+  --skills=wordpress-router,wp-project-triage,wp-block-themes,wp-plugin-development,wp-block-development,wp-wpcli-and-ops
+node shared/scripts/skillpack-install.mjs --dest=/path/to/anvisionstudio --targets=cursor \
+  --skills=wordpress-router,wp-project-triage,wp-block-themes,wp-plugin-development,wp-block-development,wp-wpcli-and-ops
+```
