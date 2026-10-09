@@ -13,6 +13,7 @@ namespace AnvisionStudio\ProjectOS\Infrastructure\Http;
 final class RestRegistrar {
 
 	public function register(): void {
+		( new CatalogController() )->register_routes();
 		( new QuotationController() )->register_routes();
 	}
 }

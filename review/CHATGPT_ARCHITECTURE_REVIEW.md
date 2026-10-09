@@ -1,18 +1,20 @@
-# Architecture review notes (ChatGPT)
+# ChatGPT architecture review notes (v0.1 baseline)
 
-Reviewed against product constraints for an_Vision Project OS.
+Aligned to authoritative `docs/ARCHITECTURE.md` (user upload).
 
-## Accepted
+## In scope for this scaffold
 
-- Strict Domain / Application / Infrastructure split with server-side money recalculation.
-- Idempotency-Key conflict on body mismatch (409) vs safe replay on match.
-- Versioned SQL migrations with applied-version ledger.
-- Immutable quotation snapshots separate from editable versions.
-- Explicit review FSM plus append-only audit log.
+- Domain pure PHP; Infrastructure owns `$wpdb` and WordPress hooks.
+- Read-only Service Catalog.
+- Draft quotation create/retrieve with server-authoritative integer-TWD totals.
+- Versioned DB migrator on activation.
+- Admin-only REST (`manage_avs_projects`) with `{success,code,message,data,meta}` envelope.
+- Idempotency on monetary create; transactions for multi-table writes.
 
-## Follow-ups (not in this slice)
+## Explicitly out of scope (do not implement yet)
 
-- Admin UI screens and block editor integration.
-- Multi-currency FX and rounding policy per locale.
-- Object cache layer for idempotency hot keys (Redis).
-- Export / PDF generation from snapshots.
+Quotation version snapshots, immutable approval / review FSM, audit logger, PDF, clients/CRM, contracts, payments, invoicing, Notion sync, queue, portals, UI, e-invoicing.
+
+## Prior reconstruction note
+
+An earlier agent reconstruction treated snapshots, review FSM, and audit log as in-scope. Those conflict with the authoritative v0.1 exclusions and must not ship as Phase 1 features.

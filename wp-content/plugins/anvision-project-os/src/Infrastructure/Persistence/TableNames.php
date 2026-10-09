@@ -22,15 +22,15 @@ final class TableNames {
 		return $this->wpdb->prefix . 'avs_idempotency_keys';
 	}
 
+	public function services(): string {
+		return $this->wpdb->prefix . 'avs_services';
+	}
+
 	public function quotations(): string {
 		return $this->wpdb->prefix . 'avs_quotations';
 	}
 
-	public function quotation_versions(): string {
-		return $this->wpdb->prefix . 'avs_quotation_versions';
-	}
-
-	public function quotation_audit_log(): string {
-		return $this->wpdb->prefix . 'avs_quotation_audit_log';
+	public function quotation_items(): string {
+		return $this->wpdb->prefix . 'avs_quotation_items';
 	}
 }

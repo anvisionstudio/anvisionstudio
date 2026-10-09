@@ -1,20 +1,20 @@
 <?php
 /**
- * Quotation REST controller.
+ * Quotation REST controller (Phase 1: draft create/get).
  *
  * @package AnvisionStudio\ProjectOS
  */
 
 namespace AnvisionStudio\ProjectOS\Infrastructure\Http;
 
-use AnvisionStudio\ProjectOS\Application\Quotation\AddQuotationVersionService;
 use AnvisionStudio\ProjectOS\Application\Quotation\CreateQuotationService;
-use AnvisionStudio\ProjectOS\Application\Quotation\CreateSnapshotService;
-use AnvisionStudio\ProjectOS\Application\Quotation\ReviewTransitionService;
+use AnvisionStudio\ProjectOS\Domain\Money\MoneyCalculator;
+use AnvisionStudio\ProjectOS\Infrastructure\Persistence\IdempotencyStore;
 use AnvisionStudio\ProjectOS\Infrastructure\Persistence\QuotationRepository;
+use AnvisionStudio\ProjectOS\Infrastructure\Persistence\ServiceCatalogRepository;
 use AnvisionStudio\ProjectOS\Infrastructure\Persistence\TableNames;
+use AnvisionStudio\ProjectOS\Domain\Idempotency\RequestFingerprint;
 use WP_REST_Request;
-use WP_REST_Response;
 
 /**
  * Registers quotation routes under avs/v1.
@@ -22,26 +22,22 @@ use WP_REST_Response;
 final class QuotationController {
 
 	private CreateQuotationService $create_service;
-	private AddQuotationVersionService $version_service;
-	private CreateSnapshotService $snapshot_service;
-	private ReviewTransitionService $review_service;
 	private QuotationRepository $quotations;
 	private IdempotencyGuard $idempotency;
 
 	public function __construct() {
 		global $wpdb;
-		$tables                 = new TableNames( $wpdb );
-		$this->quotations       = new QuotationRepository( $wpdb, $tables );
-		$this->create_service   = new CreateQuotationService( $this->quotations, new \AnvisionStudio\ProjectOS\Domain\Money\MoneyCalculator() );
-		$this->version_service  = new AddQuotationVersionService( $this->quotations, new \AnvisionStudio\ProjectOS\Domain\Money\MoneyCalculator() );
-		$this->snapshot_service = new CreateSnapshotService( $this->quotations );
-		$this->review_service   = new ReviewTransitionService(
+		$tables               = new TableNames( $wpdb );
+		$this->quotations     = new QuotationRepository( $wpdb, $tables );
+		$catalog              = new ServiceCatalogRepository( $wpdb, $tables );
+		$this->create_service = new CreateQuotationService(
 			$this->quotations,
-			new \AnvisionStudio\ProjectOS\Domain\Review\ReviewStateMachine()
+			$catalog,
+			new MoneyCalculator()
 		);
-		$this->idempotency      = new IdempotencyGuard(
-			new \AnvisionStudio\ProjectOS\Infrastructure\Persistence\IdempotencyStore( $wpdb, $tables ),
-			new \AnvisionStudio\ProjectOS\Domain\Idempotency\RequestFingerprint()
+		$this->idempotency    = new IdempotencyGuard(
+			new IdempotencyStore( $wpdb, $tables ),
+			new RequestFingerprint()
 		);
 	}
 
@@ -69,158 +65,52 @@ final class QuotationController {
 				),
 			)
 		);
-
-		register_rest_route(
-			'avs/v1',
-			'/quotations/(?P<id>\d+)/versions',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'add_version' ),
-					'permission_callback' => array( $this, 'can_manage' ),
-				),
-			)
-		);
-
-		register_rest_route(
-			'avs/v1',
-			'/quotations/(?P<id>\d+)/versions/(?P<version_id>\d+)/snapshot',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'create_snapshot' ),
-					'permission_callback' => array( $this, 'can_manage' ),
-				),
-			)
-		);
-
-		register_rest_route(
-			'avs/v1',
-			'/quotations/(?P<id>\d+)/review',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'review_transition' ),
-					'permission_callback' => array( $this, 'can_manage' ),
-				),
-			)
-		);
 	}
 
 	public function can_manage(): bool {
 		return current_user_can( 'manage_avs_projects' );
 	}
 
-	public function create_quotation( WP_REST_Request $request ): WP_REST_Response|\WP_Error {
+	public function create_quotation( WP_REST_Request $request ) {
 		return $this->idempotency->wrap(
 			$request,
-			function ( WP_REST_Request $req ): WP_REST_Response|\WP_Error {
+			function ( WP_REST_Request $req ) {
 				$params = $req->get_json_params();
 				if ( ! is_array( $params ) ) {
-					return new \WP_Error( 'avs_invalid_body', 'Expected JSON body.', array( 'status' => 400 ) );
+					return ApiResponse::error( 'avs_invalid_body', 'Expected JSON body.', 400 );
 				}
+
 				$title = sanitize_text_field( (string) ( $params['title'] ?? '' ) );
-				if ( '' === $title ) {
-					return new \WP_Error( 'avs_invalid_title', 'Title is required.', array( 'status' => 400 ) );
-				}
-				$currency = strtoupper( sanitize_text_field( (string) ( $params['currency'] ?? 'TWD' ) ) );
-				$items    = $params['line_items'] ?? array();
-				if ( ! is_array( $items ) || array() === $items ) {
-					return new \WP_Error( 'avs_invalid_line_items', 'line_items required.', array( 'status' => 400 ) );
+				$lines = $params['line_items'] ?? array();
+				if ( ! is_array( $lines ) ) {
+					return ApiResponse::error( 'avs_invalid_line_items', 'line_items must be an array.', 400 );
 				}
 
 				try {
-					$result = $this->create_service->execute(
-						$title,
-						$currency,
-						$items,
-						get_current_user_id()
-					);
+					$result = $this->create_service->execute( $title, $lines, get_current_user_id() );
+				} catch ( \InvalidArgumentException $e ) {
+					return ApiResponse::error( 'avs_create_failed', $e->getMessage(), 400 );
 				} catch ( \Throwable $e ) {
-					return new \WP_Error( 'avs_create_failed', $e->getMessage(), array( 'status' => 400 ) );
+					return ApiResponse::error( 'avs_create_failed', $e->getMessage(), 500 );
 				}
 
-				return new WP_REST_Response( $result, 201 );
+				return ApiResponse::success(
+					'avs_quotation_created',
+					'Draft quotation created.',
+					$result,
+					array(),
+					201
+				);
 			}
 		);
 	}
 
-	public function get_quotation( WP_REST_Request $request ): WP_REST_Response|\WP_Error {
+	public function get_quotation( WP_REST_Request $request ) {
 		$id  = (int) $request['id'];
 		$row = $this->quotations->get( $id );
 		if ( null === $row ) {
-			return new \WP_Error( 'avs_not_found', 'Quotation not found.', array( 'status' => 404 ) );
+			return ApiResponse::error( 'avs_not_found', 'Quotation not found.', 404 );
 		}
-		return new WP_REST_Response( $row, 200 );
-	}
-
-	public function add_version( WP_REST_Request $request ): WP_REST_Response|\WP_Error {
-		return $this->idempotency->wrap(
-			$request,
-			function ( WP_REST_Request $req ): WP_REST_Response|\WP_Error {
-				$id     = (int) $req['id'];
-				$params = $req->get_json_params();
-				if ( ! is_array( $params ) ) {
-					return new \WP_Error( 'avs_invalid_body', 'Expected JSON body.', array( 'status' => 400 ) );
-				}
-				$currency = strtoupper( sanitize_text_field( (string) ( $params['currency'] ?? 'TWD' ) ) );
-				$items    = $params['line_items'] ?? array();
-				if ( ! is_array( $items ) || array() === $items ) {
-					return new \WP_Error( 'avs_invalid_line_items', 'line_items required.', array( 'status' => 400 ) );
-				}
-
-				try {
-					$version = $this->version_service->execute( $id, $currency, $items, get_current_user_id() );
-				} catch ( \InvalidArgumentException $e ) {
-					return new \WP_Error( 'avs_not_found', $e->getMessage(), array( 'status' => 404 ) );
-				} catch ( \Throwable $e ) {
-					return new \WP_Error( 'avs_version_failed', $e->getMessage(), array( 'status' => 400 ) );
-				}
-
-				return new WP_REST_Response( $version, 201 );
-			}
-		);
-	}
-
-	public function create_snapshot( WP_REST_Request $request ): WP_REST_Response|\WP_Error {
-		return $this->idempotency->wrap(
-			$request,
-			function ( WP_REST_Request $req ): WP_REST_Response|\WP_Error {
-				$id         = (int) $req['id'];
-				$version_id = (int) $req['version_id'];
-				try {
-					$snapshot = $this->snapshot_service->execute( $id, $version_id, get_current_user_id() );
-				} catch ( \InvalidArgumentException $e ) {
-					return new \WP_Error( 'avs_snapshot_failed', $e->getMessage(), array( 'status' => 400 ) );
-				}
-
-				return new WP_REST_Response( $snapshot, 201 );
-			}
-		);
-	}
-
-	public function review_transition( WP_REST_Request $request ): WP_REST_Response|\WP_Error {
-		return $this->idempotency->wrap(
-			$request,
-			function ( WP_REST_Request $req ): WP_REST_Response|\WP_Error {
-				$id     = (int) $req['id'];
-				$params = $req->get_json_params();
-				if ( ! is_array( $params ) ) {
-					return new \WP_Error( 'avs_invalid_body', 'Expected JSON body.', array( 'status' => 400 ) );
-				}
-				$action = sanitize_key( (string) ( $params['action'] ?? '' ) );
-				$note   = sanitize_textarea_field( (string) ( $params['note'] ?? '' ) );
-
-				try {
-					$result = $this->review_service->execute( $id, $action, get_current_user_id(), $note );
-				} catch ( \InvalidArgumentException $e ) {
-					return new \WP_Error( 'avs_not_found', $e->getMessage(), array( 'status' => 404 ) );
-				} catch ( \DomainException $e ) {
-					return new \WP_Error( 'avs_invalid_transition', $e->getMessage(), array( 'status' => 422 ) );
-				}
-
-				return new WP_REST_Response( $result, 200 );
-			}
-		);
+		return ApiResponse::success( 'avs_quotation_retrieved', 'OK', $row );
 	}
 }

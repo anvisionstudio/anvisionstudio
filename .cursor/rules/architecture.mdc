@@ -1,15 +1,18 @@
 ---
-description: an_Vision Project OS plugin architecture constraints
+description: an_Vision Project OS v0.1 scaffold constraints (see docs/ARCHITECTURE.md)
 globs:
   - wp-content/plugins/anvision-project-os/**
 alwaysApply: false
 ---
 
-# Project OS architecture
+# Project OS architecture (v0.1)
 
-- Keep **Domain / Application / Infrastructure** boundaries. Domain has no WordPress imports.
-- Prefix globals and hooks with `avs_`. Namespace `AnvisionStudio\ProjectOS`.
-- **Never trust client money totals** — recalculate from line items in Application/Domain.
-- Idempotency-Key: replay on match, **409** on key reuse with different body fingerprint.
-- Quotation snapshots are immutable; mutations go through new versions only.
-- Review changes must use the state machine and append audit log entries.
+Authoritative doc: `docs/ARCHITECTURE.md`.
+
+- Keep **Domain / Application / Infrastructure**. Domain is pure PHP (no WordPress).
+- API-first envelope: `{success,code,message,data,meta}`.
+- Admin-only routes with `permission_callback` (`manage_avs_projects`).
+- Quote totals always calculated server-side; catalog unit prices are snapshotted onto line items.
+- Integer TWD amounts only in this scaffold.
+- Versioned migrator on activation; idempotency on monetary writes; multi-table writes in transactions.
+- **Out of scope for v0.1:** quotation version snapshots, immutable approval/review FSM, audit logger, PDF, CRM, payments, Notion, portals, UI.

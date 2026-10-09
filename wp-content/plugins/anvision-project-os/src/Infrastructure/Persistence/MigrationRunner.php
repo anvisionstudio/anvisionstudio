@@ -8,6 +8,7 @@
 namespace AnvisionStudio\ProjectOS\Infrastructure\Persistence;
 
 use AnvisionStudio\ProjectOS\Infrastructure\Persistence\Migrations\Migration_202510090001_CoreSchema;
+use AnvisionStudio\ProjectOS\Infrastructure\Persistence\Migrations\Migration_202510090002_Phase1Schema;
 
 /**
  * Applies lexicographically ordered migrations once.
@@ -19,6 +20,7 @@ final class MigrationRunner {
 	 */
 	private const MIGRATIONS = array(
 		Migration_202510090001_CoreSchema::class,
+		Migration_202510090002_Phase1Schema::class,
 	);
 
 	public function __construct(

@@ -14,7 +14,10 @@ final class RequestFingerprintTest extends TestCase {
 
 	public function test_same_body_produces_same_hash(): void {
 		$fp   = new RequestFingerprint();
-		$body = array( 'b' => 2, 'a' => 1 );
+		$body = array(
+			'b' => 2,
+			'a' => 1,
+		);
 		$h1   = $fp->hash( 'POST', '/avs/v1/quotations', $body );
 		$h2   = $fp->hash( 'POST', '/avs/v1/quotations', array( 'a' => 1, 'b' => 2 ) );
 		$this->assertSame( $h1, $h2 );

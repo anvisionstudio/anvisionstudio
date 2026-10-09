@@ -1,6 +1,6 @@
 <?php
 /**
- * Quotation workflow integration tests.
+ * Phase 1 quotation + catalog integration tests.
  *
  * @package AnvisionStudio\ProjectOS\Tests
  */
@@ -11,48 +11,54 @@ use WP_REST_Request;
 
 final class QuotationWorkflowTest extends WPIntegrationTestCase {
 
-	private function sample_payload(): array {
-		return array(
-			'title'      => 'Website redesign',
-			'currency'   => 'TWD',
-			'line_items' => array(
-				array(
-					'description'      => 'UX',
-					'quantity'         => 1,
-					'unit_price_minor' => 500000,
-					'tax_rate_bps'     => 500,
-				),
-			),
-		);
+	public function test_catalog_is_readable_for_admin(): void {
+		$this->acting_as_admin();
+		$req = new WP_REST_Request( 'GET', '/avs/v1/services' );
+		$res = rest_get_server()->dispatch( $req );
+		$this->assertSame( 200, $res->get_status() );
+		$body = $res->get_data();
+		$this->assertTrue( $body['success'] );
+		$this->assertSame( 'avs_services_listed', $body['code'] );
+		$this->assertNotEmpty( $body['data'] );
+		$this->assertArrayHasKey( 'unit_price_twd', $body['data'][0] );
 	}
 
-	public function test_server_recalculates_totals_and_review_audit(): void {
+	public function test_draft_quote_uses_catalog_price_snapshot_and_server_totals(): void {
 		$this->acting_as_admin();
 
 		$create = new WP_REST_Request( 'POST', '/avs/v1/quotations' );
 		$create->set_header( 'Content-Type', 'application/json' );
-		$create->set_body( wp_json_encode( $this->sample_payload() ) );
+		$create->set_body(
+			wp_json_encode(
+				array(
+					'title'      => 'Website redesign',
+					// Client-supplied unit_price_twd / total_twd must be ignored.
+					'line_items' => array(
+						array(
+							'service_code'   => 'WEB-UX',
+							'quantity'       => 2,
+							'unit_price_twd' => 1,
+							'total_twd'      => 999999,
+						),
+					),
+				)
+			)
+		);
+
 		$created = rest_get_server()->dispatch( $create );
 		$this->assertSame( 201, $created->get_status() );
+		$body = $created->get_data();
+		$this->assertTrue( $body['success'] );
+		$data = $body['data'];
+		$this->assertSame( 'draft', $data['status'] );
+		$this->assertSame( 'TWD', $data['currency'] );
+		$this->assertSame( 100000, $data['subtotal_twd'] ); // 2 * seeded 50000
+		$this->assertSame( 100000, $data['total_twd'] );
+		$this->assertSame( 50000, $data['line_items'][0]['unit_price_twd'] );
 
-		$data    = $created->get_data();
-		$id      = (int) $data['id'];
-		$version = $data['versions'][0];
-		$this->assertSame( 500000, $version['subtotal_minor'] );
-		$this->assertSame( 25000, $version['tax_minor'] );
-		$this->assertSame( 525000, $version['total_minor'] );
-
-		$submit = new WP_REST_Request( 'POST', "/avs/v1/quotations/{$id}/review" );
-		$submit->set_header( 'Content-Type', 'application/json' );
-		$submit->set_body( wp_json_encode( array( 'action' => 'submit', 'note' => 'Ready' ) ) );
-		$submitted = rest_get_server()->dispatch( $submit );
-		$this->assertSame( 200, $submitted->get_status() );
-		$this->assertSame( 'in_review', $submitted->get_data()['review_status'] );
-		$this->assertNotEmpty( $submitted->get_data()['audit_log'] );
-
-		$snapshot = new WP_REST_Request( 'POST', "/avs/v1/quotations/{$id}/versions/{$version['id']}/snapshot" );
-		$snap_res = rest_get_server()->dispatch( $snapshot );
-		$this->assertSame( 201, $snap_res->get_status() );
-		$this->assertSame( 1, $snap_res->get_data()['is_snapshot'] );
+		$get = new WP_REST_Request( 'GET', '/avs/v1/quotations/' . $data['id'] );
+		$got = rest_get_server()->dispatch( $get );
+		$this->assertSame( 200, $got->get_status() );
+		$this->assertSame( $data['id'], $got->get_data()['data']['id'] );
 	}
 }

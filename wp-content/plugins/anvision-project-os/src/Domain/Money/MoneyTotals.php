@@ -1,6 +1,6 @@
 <?php
 /**
- * Calculated monetary totals.
+ * Calculated monetary totals (integer TWD).
  *
  * @package AnvisionStudio\ProjectOS
  */
@@ -8,15 +8,14 @@
 namespace AnvisionStudio\ProjectOS\Domain\Money;
 
 /**
- * Immutable totals in minor units.
+ * Immutable totals.
  */
 final class MoneyTotals {
 
 	public function __construct(
 		public readonly string $currency,
-		public readonly int $subtotal_minor,
-		public readonly int $tax_minor,
-		public readonly int $total_minor
+		public readonly int $subtotal_twd,
+		public readonly int $total_twd
 	) {}
 
 	/**
@@ -24,10 +23,9 @@ final class MoneyTotals {
 	 */
 	public function to_array(): array {
 		return array(
-			'currency'       => $this->currency,
-			'subtotal_minor' => $this->subtotal_minor,
-			'tax_minor'      => $this->tax_minor,
-			'total_minor'    => $this->total_minor,
+			'currency'     => $this->currency,
+			'subtotal_twd' => $this->subtotal_twd,
+			'total_twd'    => $this->total_twd,
 		);
 	}
 }

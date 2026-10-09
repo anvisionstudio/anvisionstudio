@@ -9,11 +9,12 @@ namespace AnvisionStudio\ProjectOS\Infrastructure\Http;
 
 use AnvisionStudio\ProjectOS\Application\Contracts\IdempotencyStoreInterface;
 use AnvisionStudio\ProjectOS\Domain\Idempotency\RequestFingerprint;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * Enforces Idempotency-Key semantics on write routes.
+ * Enforces Idempotency-Key semantics on monetary write routes.
  */
 final class IdempotencyGuard {
 
@@ -23,9 +24,9 @@ final class IdempotencyGuard {
 	) {}
 
 	/**
-	 * @param callable(WP_REST_Request): WP_REST_Response|\WP_Error $handler Core handler.
+	 * @param callable(WP_REST_Request): (WP_REST_Response|WP_Error) $handler Core handler.
 	 */
-	public function wrap( WP_REST_Request $request, callable $handler ): WP_REST_Response|\WP_Error {
+	public function wrap( WP_REST_Request $request, callable $handler ): WP_REST_Response|WP_Error {
 		$key = $request->get_header( 'Idempotency-Key' );
 		if ( ! is_string( $key ) || '' === trim( $key ) ) {
 			return $handler( $request );
@@ -43,10 +44,10 @@ final class IdempotencyGuard {
 		$existing = $this->store->find( $key );
 		if ( null !== $existing ) {
 			if ( ! hash_equals( $existing['request_hash'], $hash ) ) {
-				return new \WP_Error(
+				return ApiResponse::error(
 					'avs_idempotency_key_mismatch',
 					__( 'Idempotency-Key was reused with a different request payload.', 'anvision-project-os' ),
-					array( 'status' => 409 )
+					409
 				);
 			}
 			$data = json_decode( $existing['response_body'], true );

@@ -1,70 +1,30 @@
-# an_Vision Project OS — Architecture
+# an_Vision Project OS — v0.1 development baseline
 
-WordPress plugin (`anvision-project-os`) that backs the Project OS admin console. Code prefix: `avs_`. Namespace: `AnvisionStudio\ProjectOS`.
+## Scope
+Phase 1 plugin scaffold: read-only Service Catalog, draft quotation creation and retrieval, server-authoritative integer-TWD pricing, versionable DB migration at activation, admin-only API access. NOT production ready.
 
-## Layering
+## Source of truth
+- Project OS WordPress MySQL: quotes, accepted contractual scope, amounts, cost, payments, access grants.
+- Notion (future connector): collaborative tasks, meeting notes, SOPs.
+- Drive (future connector): original PDFs and signed evidence.
+- AI (future): proposals only; human approval required for financial and contractual mutations.
 
-| Layer | Responsibility | May depend on |
-| --- | --- | --- |
-| **Domain** | Entities, value objects, state machines, invariants (money, idempotency rules) | Nothing outside Domain |
-| **Application** | Use cases, orchestration, DTOs | Domain |
-| **Infrastructure** | REST, `$wpdb`, migrations, WordPress hooks | Application, Domain |
+## Engineering rules
+- API-first; response `{success,code,message,data,meta}`.
+- Domain pure PHP: no WordPress calls.
+- Infrastructure handles `$wpdb`, WordPress hooks and adapters.
+- Every route has `permission_callback` and checks resource ownership before customer access.
+- Quote totals always calculated server-side; quoted catalog price is a snapshot (not supplied totals).
+- Never expose cost rate or draft quotes in client/partner endpoints.
+- Transactions for multi-table writes; idempotency on monetary/business operations.
+- Migrator/versioning, update signature verification, outbox, audit, schema validation and portal role separation required BEFORE production.
 
-Dependency rule: Infrastructure → Application → Domain only.
+## Explicit exclusions of this scaffold
+Quotation version snapshots, immutable approval, PDF output, clients/CRM, contracts, payments, invoicing, Notion sync, queue, audit logger, external portals, UI, e-invoicing. These are planned, NOT implemented.
 
-## Money
-
-- All amounts stored as **integer minor units** (e.g. TWD cents) with ISO 4217 currency code.
-- **Server recalculates** subtotal, tax, and total from line items on every write; client-supplied totals are ignored.
-- Line item: `{ description, quantity, unit_price_minor, tax_rate_bps }` (`tax_rate_bps` = basis points).
-
-## Idempotency-Key
-
-Write routes accept optional header `Idempotency-Key` (max 128 chars).
-
-1. Canonical request fingerprint = SHA-256 of `METHOD + route + normalized JSON body`.
-2. **New key** → execute, persist fingerprint + HTTP status + JSON response (24h TTL).
-3. **Same key, same fingerprint** → replay stored response (including status).
-4. **Same key, different fingerprint** → **409 Conflict** (`avs_idempotency_key_mismatch`).
-
-## Database migrations
-
-- Table `{prefix}avs_schema_migrations` records applied migration IDs (lexicographic version strings).
-- Each migration class implements `up()` only; versions are immutable once shipped.
-- Migrations run on plugin activation and before REST boot if pending.
-
-## Quotations
-
-- **Quotation** — logical document; has `review_status` and pointer to latest version.
-- **Quotation version** — mutable working revision (`is_snapshot = 0`).
-- **Snapshot** — immutable copy of a version (`is_snapshot = 1`); no updates or deletes.
-
-Creating a version always recalculates money. Snapshots duplicate line items and totals at creation time.
-
-## Review state machine
-
-States: `draft` → `in_review` → `approved` | `rejected`; `rejected` → `draft` (revise).
-
-| Transition | From | To |
-| --- | --- | --- |
-| submit | draft, rejected | in_review |
-| approve | in_review | approved |
-| reject | in_review | rejected |
-| reopen | approved | in_review |
-
-Invalid transitions return **422**. Every transition writes an **audit log** row (from, to, actor, optional note).
-
-## REST API (`avs/v1`)
-
-- `POST /quotations` — create quotation + v1
-- `GET /quotations/{id}`
-- `POST /quotations/{id}/versions` — new version from payload line items
-- `POST /quotations/{id}/versions/{version_id}/snapshot`
-- `POST /quotations/{id}/review` — body `{ "action": "submit"|"approve"|"reject"|"reopen", "note": "..." }`
-
-All write routes honor Idempotency-Key. Capability: `manage_avs_projects`.
-
-## Testing
-
-- **Unit** — domain calculators and state machine (no WordPress).
-- **Integration** — `WP_UnitTestCase` against WordPress test library + MySQL (CI).
+## Review gates
+1. Cursor implements feature on branch.
+2. Claude independently audits security and tests with `review/CLAUDE_REVIEW.md`.
+3. Codex independently audits with `review/CODEX_REVIEW.md`.
+4. ChatGPT checks invariants, boundaries, acceptance tests, and merges findings into architecture decisions.
+5. No production deployment before all critical/high findings resolved.

@@ -13,18 +13,26 @@ use PHPUnit\Framework\TestCase;
 
 final class MoneyCalculatorTest extends TestCase {
 
-	public function test_recalculates_subtotal_tax_and_total(): void {
+	public function test_recalculates_integer_twd_totals(): void {
 		$calculator = new MoneyCalculator();
 		$totals     = $calculator->calculate(
-			'TWD',
 			array(
-				new LineItem( 'Design', 2, 50000, 500 ),
-				new LineItem( 'Hosting', 1, 10000, 0 ),
+				new LineItem( 'Design', 2, 50000, 1, 'WEB-UX' ),
+				new LineItem( 'Hosting', 1, 12000, 3, 'HOST-1Y' ),
 			)
 		);
 
-		$this->assertSame( 110000, $totals->subtotal_minor );
-		$this->assertSame( 5000, $totals->tax_minor );
-		$this->assertSame( 115000, $totals->total_minor );
+		$this->assertSame( 'TWD', $totals->currency );
+		$this->assertSame( 112000, $totals->subtotal_twd );
+		$this->assertSame( 112000, $totals->total_twd );
+	}
+
+	public function test_ignores_client_supplied_concept_by_only_using_line_math(): void {
+		// Client cannot inject totals; calculator only sums quantity * unit_price_twd.
+		$calculator = new MoneyCalculator();
+		$totals     = $calculator->calculate(
+			array( new LineItem( 'Build', 1, 120000 ) )
+		);
+		$this->assertSame( 120000, $totals->total_twd );
 	}
 }
