@@ -11,7 +11,7 @@ export HOST_UID HOST_GID
 .DEFAULT_GOAL := help
 
 .PHONY: help env setup up down restart logs ps health \
-	wp shell composer npm phpcs phpcbf lint assets \
+	wp shell composer npm phpcs phpcbf lint assets test \
 	install reset destroy
 
 help: ## 顯示可用指令
@@ -73,6 +73,9 @@ phpcbf: ## 自動修正可修復的 PHPCS 問題
 	$(COMPOSE) run --rm composer phpcbf
 
 lint: phpcs ## 執行靜態檢查
+
+test: ## 執行 Project OS PHPUnit（需本機已 install-wp-tests）
+	./vendor/bin/phpunit
 
 assets: ## 編譯主題前端資產
 	$(COMPOSE) run --rm --workdir /app/$(THEME_DIR) --entrypoint npm node run build

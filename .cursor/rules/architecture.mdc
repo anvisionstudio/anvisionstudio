@@ -1,0 +1,15 @@
+---
+description: an_Vision Project OS plugin architecture constraints
+globs:
+  - wp-content/plugins/anvision-project-os/**
+alwaysApply: false
+---
+
+# Project OS architecture
+
+- Keep **Domain / Application / Infrastructure** boundaries. Domain has no WordPress imports.
+- Prefix globals and hooks with `avs_`. Namespace `AnvisionStudio\ProjectOS`.
+- **Never trust client money totals** — recalculate from line items in Application/Domain.
+- Idempotency-Key: replay on match, **409** on key reuse with different body fingerprint.
+- Quotation snapshots are immutable; mutations go through new versions only.
+- Review changes must use the state machine and append audit log entries.
