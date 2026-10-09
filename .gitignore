@@ -8,6 +8,7 @@ auth.json
 # Dependencies
 /vendor/
 node_modules/
+/bin/composer
 
 # Bundled core themes/plugins the official image copies into the bind mount
 wp-content/plugins/akismet/
@@ -45,4 +46,7 @@ npm-debug.log*
 
 # Composer / PHPUnit cache
 .phpunit.result.cache
+.phpunit.cache/
 .phpcs-cache
+/tmp/
+wp-tests-config.php

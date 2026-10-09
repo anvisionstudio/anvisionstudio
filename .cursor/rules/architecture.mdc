@@ -1,0 +1,18 @@
+---
+description: an_Vision Project OS v0.1 scaffold constraints (see docs/ARCHITECTURE.md)
+globs:
+  - wp-content/plugins/anvision-project-os/**
+alwaysApply: false
+---
+
+# Project OS architecture (v0.1)
+
+Authoritative doc: `docs/ARCHITECTURE.md`.
+
+- Keep **Domain / Application / Infrastructure**. Domain is pure PHP (no WordPress).
+- API-first envelope: `{success,code,message,data,meta}`.
+- Admin-only routes with `permission_callback` (`manage_avs_projects`).
+- Quote totals always calculated server-side; catalog unit prices are snapshotted onto line items.
+- Integer TWD amounts only in this scaffold.
+- Versioned migrator on activation; idempotency on monetary writes; multi-table writes in transactions.
+- **Out of scope for v0.1:** quotation version snapshots, immutable approval/review FSM, audit logger, PDF, CRM, payments, Notion, portals, UI.

@@ -4,6 +4,7 @@
 
 	<file>wp-content/themes/anvisionstudio</file>
 	<file>wp-content/plugins/anvisionstudio-core</file>
+	<file>wp-content/plugins/anvision-project-os</file>
 	<file>wp-content/plugins/image-compressor</file>
 	<file>wp-content/mu-plugins</file>
 
@@ -11,6 +12,43 @@
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/build/*</exclude-pattern>
 	<exclude-pattern>*/uploads/*</exclude-pattern>
+
+	<!-- PSR-4 Project OS sources: Composer class names + typed domain layer. -->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>*/plugins/anvision-project-os/src/*</exclude-pattern>
+	</rule>
+	<!-- Product code prefix is avs_ by design (see preferences). -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed">
+		<severity name="severity" value="avs"/>
+	</rule>
+	<rule ref="WordPress-Docs">
+		<exclude-pattern>*/plugins/anvision-project-os/src/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting">
+		<exclude-pattern>*/plugins/anvision-project-os/src/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment">
+		<exclude-pattern>*/plugins/anvision-project-os/src/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.DB.PreparedSQL">
+		<exclude-pattern>*/plugins/anvision-project-os/src/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<exclude-pattern>*/plugins/anvision-project-os/src/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.json_encode_json_encode">
+		<exclude-pattern>*/plugins/anvision-project-os/src/Domain/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.Security.EscapeOutput">
+		<exclude-pattern>*/plugins/anvision-project-os/src/Domain/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="manage_avs_projects"/>
+			</property>
+		</properties>
+	</rule>
 
 	<arg name="extensions" value="php"/>
 	<arg name="parallel" value="4"/>
@@ -32,6 +70,7 @@
 			<property name="text_domain" type="array">
 				<element value="anvisionstudio"/>
 				<element value="anvisionstudio-core"/>
+				<element value="anvision-project-os"/>
 				<element value="image-compressor"/>
 			</property>
 		</properties>
@@ -42,6 +81,8 @@
 			<property name="prefixes" type="array">
 				<element value="anvision"/>
 				<element value="ANVISION"/>
+				<element value="avs"/>
+				<element value="AVS"/>
 			</property>
 		</properties>
 	</rule>

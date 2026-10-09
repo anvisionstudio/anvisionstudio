@@ -29,3 +29,48 @@ jobs:
 
       - name: PHP lint
         run: composer lint
+
+  project-os-tests:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mariadb:11.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mysqli
+          coverage: none
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Install WordPress test library
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq curl
+          WP_VERSION=6.7.2 \
+          WP_TEST_DB_NAME=wordpress_test \
+          WP_TEST_DB_USER=root \
+          WP_TEST_DB_PASS=root \
+          WP_TEST_DB_HOST=127.0.0.1 \
+          ./bin/install-wp-tests.sh
+
+      - name: PHPUnit
+        env:
+          WP_TESTS_DIR: ${{ github.workspace }}/tmp/wordpress-tests-lib
+        run: composer test
