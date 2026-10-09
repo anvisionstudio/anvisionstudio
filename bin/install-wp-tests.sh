@@ -17,9 +17,11 @@ mkdir -p "${ROOT}/tmp"
 if [ ! -f "${WP_CORE_DIR}/wp-settings.php" ]; then
 	echo "Downloading WordPress ${WP_VERSION}..."
 	curl -sSL "https://wordpress.org/wordpress-${WP_VERSION}.tar.gz" -o "${ROOT}/tmp/wordpress.tar.gz"
-	rm -rf "${WP_CORE_DIR}" "${ROOT}/tmp/wordpress"
-	tar -xzf "${ROOT}/tmp/wordpress.tar.gz" -C "${ROOT}/tmp"
-	mv "${ROOT}/tmp/wordpress" "${WP_CORE_DIR}"
+	rm -rf "${WP_CORE_DIR}"
+	mkdir -p "${WP_CORE_DIR}"
+	# Extract the top-level wordpress/ directory contents straight into WP_CORE_DIR
+	# (avoid mv of tmp/wordpress onto itself when WP_CORE_DIR is tmp/wordpress).
+	tar -xzf "${ROOT}/tmp/wordpress.tar.gz" -C "${WP_CORE_DIR}" --strip-components=1
 fi
 
 if [ ! -f "${WP_TESTS_DIR}/includes/functions.php" ]; then
